@@ -1,4 +1,5 @@
 import torch
+import numpy as np
 import sys
 sys.path.append('./')
 import globalvar as gl
@@ -21,12 +22,30 @@ if __name__ =='__main__':
     s=args.s
     latent_dim=args.latent_dim
     epoch_s=args.epoch_s
-    epoch_e=args.epoch_e    
+    epoch_e=args.epoch_e
 
     seed=1234
     use_cuda=True if torch.cuda.is_available() else False
     device = torch.device("cuda" if use_cuda else "cpu")
     loss_type='cosface'
+
+        # todo 不一样的地方
+    if latent_dim==2:
+        direct=torch.tensor(
+                np.array([  [1,	        0],
+                            [0.809,	    0.588],
+                            [0.309,	    0.951],
+                            [-0.309,	0.951],
+                            [-0.809,	0.588],
+                            [-1,	    0],
+                            [-0.809,    -0.588],
+                            [-0.309,    -0.951],
+                            [0.309,     -0.951],
+                            [0.809,     -0.588]]),device=device,dtype=torch.float)    
+    elif latent_dim==10:
+        direct=torch.eye(10,device=device)
+    else:
+        raise Exception('方向未指定！')
 
     gl._init()
     gl.set_value('batch_size',batch_size)
@@ -34,18 +53,18 @@ if __name__ =='__main__':
     gl.set_value('lr',lr)
     gl.set_value('use_cuda',use_cuda)
     gl.set_value('device',device)
-    gl.set_value('m',m)
-    gl.set_value('s',s)
     gl.set_value('loss_type',loss_type)
     gl.set_value('epoch_s',epoch_s)
     gl.set_value('epoch_e',epoch_e)
     gl.set_value('latent_dim',latent_dim)
+    gl.set_value('direct',direct)
 
 
     gl.set_value('m',m)
     gl.set_value('s',s)
-    logdir='./v1/log{}d/log{}d_m{}_s{}'.format(latent_dim,latent_dim,m,s)
+    logdir='./v2/log{}d_m{}_s{}'.format(latent_dim,m,s)
     gl.set_value('logdir',logdir)
+
     import imp
     import train_fMNIST
     imp.reload(train_fMNIST)

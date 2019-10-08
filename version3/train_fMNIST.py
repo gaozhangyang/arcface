@@ -57,19 +57,17 @@ def main():
     model_am = train_am(train_loader,example_loader,writer)
 
 
-
 def train_am(train_loader,example_loader,writer):
     model = ConvAngularPen(loss_type=loss_type).to(device)
     path='{}/result/{}_epoch_{}_m{}_s{}.pkl'.format(logdir,loss_type,epoch_s,m,s)
     if epoch_s>0:
         model.load_state_dict(torch.load(path))
     optimizer = torch.optim.Adam(model.parameters(), lr=lr)
-    
+
     for epoch in range(epoch_s):
         if((epoch+1) % 8 == 0):
             for param_group in optimizer.param_groups:
                 param_group['lr'] = param_group['lr']/4
-
     global_step=epoch_s*len(train_loader)
     for epoch in tqdm(range(epoch_s,epoch_e)):
         for i, (feats, labels) in enumerate(train_loader):
@@ -111,7 +109,3 @@ def get_embeds(model, example_loader):
             embeds = model(feats, embed=True)
             full_embeds.append(embeds.detach().cpu().numpy())
     return np.concatenate(full_embeds), np.concatenate(full_labels)
-
-
-
-
